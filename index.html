@@ -144,7 +144,7 @@
           <input type="number" id="onboardBudget" min="100" step="50" value="3000" required
             class="w-full bg-slate-50/50 border border-slate-200 rounded-xl py-3 pl-8 pr-3 text-textMain font-stat font-semibold focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand" />
         </div>
-        <p class="text-xs text-textMuted mt-1.5">Total reward cost for all 11 weapons is ₹2,600.</p>
+        <p class="text-xs text-textMuted mt-1.5">Earn rewards incrementally everyday relative to total time logged.</p>
       </div>
 
       <button type="submit" class="w-full bg-brand hover:bg-brandHover text-white font-display font-bold py-3.5 rounded-xl shadow-lg shadow-brand/10 transition active:scale-[.99]">
@@ -224,7 +224,7 @@
       </div>
       <div class="bg-cardBg p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between">
         <div>
-          <div class="text-[10px] text-textMuted font-bold uppercase tracking-wider mb-0.5">Money Saved</div>
+          <div class="text-[10px] text-textMuted font-bold uppercase tracking-wider mb-0.5">Daily Rewards Saved</div>
           <div id="savedLabel" class="font-stat font-bold text-base sm:text-lg text-accentGreen">₹0</div>
         </div>
         <div id="budgetGoalLabel" class="text-[10px] text-textMuted mt-1">Target: ₹3,000</div>
@@ -254,7 +254,10 @@
 
         <!-- Daily Quest Logger -->
         <section id="questFormSection" class="bg-cardBg border border-slate-100 rounded-2xl p-5 shadow-sm space-y-3">
-          <h3 class="font-display font-bold text-sm text-textMain">📝 Log Daily Study Session</h3>
+          <div class="flex items-center justify-between">
+            <h3 class="font-display font-bold text-sm text-textMain">📝 Log Daily Study Session</h3>
+            <span class="text-[10px] bg-emerald-50 text-accentGreen border border-emerald-100 px-2 py-0.5 rounded-md font-bold font-stat">Rate: ₹1 / 5 mins</span>
+          </div>
           <div class="space-y-3">
             <div>
               <textarea id="subtaskInput" rows="2" placeholder="What did you learn or code today? (e.g. Solved Cyclic Sort Missing Number)"
@@ -268,11 +271,11 @@
               <button type="button" id="useTimerBtn" class="text-xs text-brand hover:underline font-medium">⏱️ Fetch Stopwatch time</button>
             </div>
             <div class="grid grid-cols-2 gap-2 pt-1">
-              <button type="button" id="logProgressBtn" class="bg-slate-100 hover:bg-slate-200 text-textMain text-xs font-semibold py-2.5 rounded-xl transition">
-                Log Progress
+              <button type="button" id="logProgressBtn" class="bg-brand hover:bg-brandHover text-white text-xs font-bold py-2.5 rounded-xl transition shadow-md shadow-brand/10">
+                Log Progress & Earn Reward 💰
               </button>
-              <button type="button" id="completeTopicBtn" class="bg-brand hover:bg-brandHover text-white text-xs font-bold py-2.5 rounded-xl transition shadow-md shadow-brand/10">
-                Claim Weapon ⚔️
+              <button type="button" id="completeTopicBtn" class="bg-slate-100 hover:bg-slate-200 text-textMain text-xs font-semibold py-2.5 rounded-xl transition">
+                Claim Weapon ⚔
               </button>
             </div>
           </div>
@@ -370,6 +373,21 @@
           <input type="number" id="settingsBudget" min="100" step="50" required class="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 pl-8 pr-3 text-textMain font-stat focus:outline-none focus:border-brand" />
         </div>
       </div>
+      
+      <!-- BACKUP & RESTORE SECURE PACK -->
+      <div class="pt-3 border-t border-slate-100 space-y-2">
+        <label class="block text-xs uppercase tracking-wider text-textMuted font-bold">Data Security (Backup)</label>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" id="exportDataBtn" class="bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-accentGreen text-xs font-bold py-2 rounded-xl transition flex items-center justify-center gap-1">
+            📥 Backup Data
+          </button>
+          <label class="bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-brand text-xs font-bold py-2 rounded-xl transition flex items-center justify-center gap-1 cursor-pointer text-center">
+            📤 Restore
+            <input type="file" id="importDataFile" class="hidden" accept=".json" />
+          </label>
+        </div>
+      </div>
+
       <button type="submit" class="w-full bg-brand hover:bg-brandHover text-white font-display font-bold py-2.5 rounded-xl transition shadow-md">Save Changes</button>
     </form>
 
@@ -408,20 +426,20 @@
 (function () {
   'use strict';
 
-  const STORAGE_KEY = 'javaForgeState_v2';
+  const STORAGE_KEY = 'javaForgeState_v2_daily';
 
   const TOPICS = [
-    { id: 1,  name: 'Git, GitHub & Program Flow',       weapon: 'The Git Dagger',            icon: '🗡️', cost: 100, xp: 200 },
-    { id: 2,  name: 'Java Basics, Loops & Functions',    weapon: 'The Iron Core',             icon: '⚙️', cost: 150, xp: 300 },
-    { id: 3,  name: 'Arrays & ArrayLists',               weapon: 'Multi-Grid Gauntlet',       icon: '🧱', cost: 150, xp: 350 },
-    { id: 4,  name: 'Linear & Binary Search (Inc. 2D)',  weapon: 'The Scope Sight',           icon: '🎯', cost: 250, xp: 500 },
-    { id: 5,  name: 'Sorting (Bubble, Select, Cyclic)',  weapon: 'The Cyclic Loop',           icon: '🔄', cost: 250, xp: 500 },
-    { id: 6,  name: 'Strings & StringBuilder',           weapon: 'The Scribe Scroll',         icon: '📜', cost: 150, xp: 350 },
-    { id: 7,  name: 'Maths for DSA (Bitwise & Number)',  weapon: 'Bitwise Lightning Staff',   icon: '⚡', cost: 250, xp: 600 },
-    { id: 8,  name: 'Recursion & Backtracking (Deep)',   weapon: 'The Mirror of Recursion',   icon: '🪞', cost: 400, xp: 900 },
-    { id: 9,  name: 'Object Oriented Programming (OOP)', weapon: 'The Architect\'s Blueprint',icon: '💎', cost: 300, xp: 600 },
-    { id: 10, name: 'Linked Lists, Stacks & Queues',     weapon: 'The Linked Chain Shield',   icon: '⛓️', cost: 300, xp: 650 },
-    { id: 11, name: 'Trees, Heaps & HashMaps',           weapon: 'The World-Tree Catalyst',   icon: '🌳', cost: 300, xp: 750 }
+    { id: 1,  name: 'Git, GitHub & Program Flow',       weapon: 'The Git Dagger',            icon: '🗡️', xp: 200 },
+    { id: 2,  name: 'Java Basics, Loops & Functions',    weapon: 'The Iron Core',             icon: '⚙️', xp: 300 },
+    { id: 3,  name: 'Arrays & ArrayLists',               weapon: 'Multi-Grid Gauntlet',       icon: '🧱', xp: 350 },
+    { id: 4,  name: 'Linear & Binary Search (Inc. 2D)',  weapon: 'The Scope Sight',           icon: '🎯', xp: 500 },
+    { id: 5,  name: 'Sorting (Bubble, Select, Cyclic)',  weapon: 'The Cyclic Loop',           icon: '🔄', xp: 500 },
+    { id: 6,  name: 'Strings & StringBuilder',           weapon: 'The Scribe Scroll',         icon: '📜', xp: 350 },
+    { id: 7,  name: 'Maths for DSA (Bitwise & Number)',  weapon: 'Bitwise Lightning Staff',   icon: '⚡', xp: 600 },
+    { id: 8,  name: 'Recursion & Backtracking (Deep)',   weapon: 'The Mirror of Recursion',   icon: '🪞', xp: 900 },
+    { id: 9,  name: 'Object Oriented Programming (OOP)', weapon: 'The Architect\'s Blueprint',icon: '💎', xp: 600 },
+    { id: 10, name: 'Linked Lists, Stacks & Queues',     weapon: 'The Linked Chain Shield',   icon: '⛓️', xp: 650 },
+    { id: 11, name: 'Trees, Heaps & HashMaps',           weapon: 'The World-Tree Catalyst',   icon: '🌳', xp: 750 }
   ];
 
   const TOTAL_TOPICS = TOPICS.length;
@@ -483,11 +501,12 @@
 
     for (let i = state.log.length - 1; i >= 0; i--) {
       const entry = state.log[i];
-      if (entry.type === 'complete') {
-        state.topics[entry.topicId].completed = true;
-        state.topics[entry.topicId].completedDate = entry.date;
+      if (entry.type === 'progress') {
         state.totalSaved += entry.amount;
         state.totalXP += entry.xp;
+      } else if (entry.type === 'complete') {
+        state.topics[entry.topicId].completed = true;
+        state.topics[entry.topicId].completedDate = entry.date;
       } else if (entry.type === 'penalty') {
         state.totalPenalty += 100;
         state.penaltyCount += 1;
@@ -617,6 +636,46 @@
     if (opts.confetti) fireConfetti();
   }
 
+  // ===================== EXPORT & IMPORT ENGINE =====================
+  function exportDataJSON() {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
+    const downloadAnchor = document.createElement('a');
+    const timeStamp = new Date().toISOString().slice(0,10);
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `java_forge_backup_${timeStamp}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+    showToast("📥 Backup file downloaded successfully!");
+  }
+
+  function importDataJSON(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const parsed = JSON.parse(e.target.result);
+        if (parsed && parsed.onboarded && parsed.log) {
+          state = parsed;
+          saveState();
+          document.getElementById('settingsModal').classList.add('hidden');
+          document.getElementById('onboardScreen').classList.add('hidden');
+          document.getElementById('app').classList.remove('hidden');
+          document.getElementById('app').classList.add('md:flex');
+          recalculateMetricsFromLogs();
+          renderAll();
+          showToast("📤 Data fully restored successfully!");
+        } else {
+          alert("Error: This JSON file is not a valid tracker backup.");
+        }
+      } catch (err) {
+        alert("Error parsing JSON backup file.");
+      }
+    };
+    reader.readAsText(file);
+  }
+
   // ===================== CORE UI RENDERERS =====================
   function renderHeaderAndStats() {
     const cc = getCompletedCount();
@@ -647,9 +706,9 @@
         <span class="text-2xl">${current.icon}</span>
         <div class="text-xs"><span class="text-textMuted">Unlocks Weapon:</span> <span class="font-bold text-textMain">${escapeHtml(current.weapon)}</span></div>
       </div>
-      <div class="grid grid-cols-2 gap-2 mt-3 text-center">
-        <div class="bg-emerald-50 rounded-lg py-1.5 border border-emerald-100/60"><span class="block text-[9px] text-textMuted uppercase">Savings</span><span class="font-stat text-xs font-bold text-accentGreen">${fmtCurrency(current.cost)}</span></div>
-        <div class="bg-indigo-50 rounded-lg py-1.5 border border-indigo-100/60"><span class="block text-[9px] text-textMuted uppercase">Rewards</span><span class="font-stat text-xs font-bold text-brand">${current.xp} XP</span></div>
+      <div class="bg-indigo-50 rounded-lg py-2 mt-3 text-center border border-indigo-100/60">
+        <span class="block text-[9px] text-textMuted uppercase">Completion Unlock</span>
+        <span class="font-stat text-xs font-bold text-brand">${current.xp} XP</span>
       </div>`;
   }
 
@@ -684,8 +743,7 @@
             <p class="text-[11px] text-textMuted truncate">${escapeHtml(t.name)}</p>
           </div>
           <div class="text-right shrink-0">
-            <div class="font-stat text-xs font-bold text-accentGreen">${fmtCurrency(t.cost)}</div>
-            <div class="font-stat text-[9px] text-brand">${t.xp} XP</div>
+            <div class="font-stat text-xs font-bold text-brand">${t.xp} XP</div>
           </div>
         </div>`;
     }).join('');
@@ -736,9 +794,8 @@
   function resetWeaponDirectly() {
     if (!activeSelectedTopicId) return;
     const t = getTopicStatic(activeSelectedTopicId);
-    if (!confirm(`Are you sure you want to drop "${t.weapon}"? This removes all completion data and rewards for this specific milestone.`)) return;
+    if (!confirm(`Are you sure you want to drop "${t.weapon}"? This removes completion markers for this specific milestone.`)) return;
     
-    // Remove completion markers for this weapon out of the log array
     state.log = state.log.filter(item => !(item.topicId === activeSelectedTopicId && item.type === 'complete'));
     recalculateMetricsFromLogs();
     document.getElementById('topicDetailModal').classList.add('hidden');
@@ -786,8 +843,10 @@
     }
     list.innerHTML = state.log.map(e => {
       let badge = '📝'; let border = 'border-slate-100 bg-cardBg'; let right = `<span class="text-xs font-stat text-textMuted">${e.minutes}m</span>`;
-      if(e.type === 'complete') {
-        badge = '⚔️'; border = 'border-emerald-100 bg-emerald-50/30'; right = `<div class="text-right"><div class="text-xs font-stat font-bold text-accentGreen">+${fmtCurrency(e.amount)}</div><div class="text-[9px] text-brand font-stat">+${e.xp}XP</div></div>`;
+      if(e.type === 'progress') {
+        badge = '💰'; border = 'border-emerald-100 bg-emerald-50/30'; right = `<div class="text-right"><div class="text-xs font-stat font-bold text-accentGreen">+${fmtCurrency(e.amount)}</div><div class="text-[9px] text-brand font-stat">+${e.xp}XP</div></div>`;
+      } else if(e.type === 'complete') {
+        badge = '⚔️'; border = 'border-indigo-100 bg-indigo-50/30'; right = `<div class="text-right"><div class="text-xs font-stat font-bold text-brand">UNLOCKED</div></div>`;
       } else if (e.type === 'penalty') {
         badge = '💀'; border = 'border-rose-100 bg-rose-50/30'; right = `<span class="text-xs font-stat font-bold text-accentRose">-${fmtCurrency(e.amount)}</span>`;
       }
@@ -817,27 +876,58 @@
     const minutes = Math.max(1, parseInt(document.getElementById('minutesInput').value, 10) || 0);
     if (!subtask) { showToast('Please type a descriptive note about your progress.'); return; }
 
-    state.log.unshift({ id: Date.now(), type: 'progress', topicId: current.id, topicName: current.name, subtask, minutes, amount: 0, xp: 0, date: new Date().toISOString() });
+    const rewardAmount = Math.floor(minutes / 5);
+    const xpGained = minutes * 2;
+
+    state.totalSaved += rewardAmount;
+    state.totalXP += xpGained;
+
+    state.log.unshift({ 
+      id: Date.now(), 
+      type: 'progress', 
+      topicId: current.id, 
+      topicName: current.name, 
+      subtask, 
+      minutes, 
+      amount: rewardAmount, 
+      xp: xpGained, 
+      date: new Date().toISOString() 
+    });
+
     saveState(); document.getElementById('subtaskInput').value = ''; resetTimer(); renderAll();
-    showToast('Progress saved to your journal! 📖');
+    
+    showResultModal({
+      icon: '💰',
+      title: 'Daily Reward Claimed!',
+      body: `You logged <span class="font-bold">${minutes} minutes</span> of deep study.<br/>Transfer <span class="font-stat font-bold text-accentGreen">${fmtCurrency(rewardAmount)}</span> into your savings pocket right now!<br/><br/><span class="text-brand font-stat font-bold">+${xpGained} XP Earned.</span>`,
+      confetti: true
+    });
   }
 
   function completeTopic() {
     const current = getCurrentTopic(); if (!current) return;
-    const subtask = document.getElementById('subtaskInput').value.trim();
-    const minutes = Math.max(1, parseInt(document.getElementById('minutesInput').value, 10) || 0);
-    if (!subtask) { showToast('Add a final summary note before claiming your weapon.'); return; }
-
+    
     state.topics[current.id].completed = true;
     state.topics[current.id].completedDate = new Date().toISOString();
-    state.totalSaved += current.cost; state.totalXP += current.xp;
-    state.log.unshift({ id: Date.now(), type: 'complete', topicId: current.id, topicName: current.name, subtask, minutes, amount: current.cost, xp: current.xp, date: new Date().toISOString() });
+    
+    state.log.unshift({ 
+      id: Date.now(), 
+      type: 'complete', 
+      topicId: current.id, 
+      topicName: current.name, 
+      subtask: `Forged and unlocked ${current.weapon}`, 
+      minutes: 0, 
+      amount: 0, 
+      xp: 0, 
+      date: new Date().toISOString() 
+    });
+    
     saveState(); document.getElementById('subtaskInput').value = ''; resetTimer(); renderAll();
 
     showResultModal({
-      icon: current.icon + ' ✨',
-      title: 'Weapon Unlocked: ' + current.weapon,
-      body: `Excellent! Transfer <span class="font-stat font-bold text-accentGreen">${fmtCurrency(current.cost)}</span> into your dedicated savings account right now.<br/><br/><span class="text-brand font-stat font-bold">+${current.xp} XP Earned.</span>`,
+      icon: current.icon + ' ⚔️',
+      title: 'Weapon Forged: ' + current.weapon,
+      body: `Congratulations! You officially marked Milestone ${current.id} as complete. Your status has grown!`,
       confetti: true
     });
   }
@@ -890,7 +980,6 @@
       document.getElementById('onboardScreen').classList.remove('hidden');
     }
 
-    // Expose structural global hooks for inline removal buttons inside loops safely
     window._forgeRemoveLog = removeLogEntry;
 
     document.querySelectorAll('.nav-item').forEach(btn => {
@@ -916,6 +1005,10 @@
     document.getElementById('resultModalCloseBtn').addEventListener('click', () => document.getElementById('resultModal').classList.add('hidden'));
     document.getElementById('topicDetailCloseBtn').addEventListener('click', () => document.getElementById('topicDetailModal').classList.add('hidden'));
     document.getElementById('resetWeaponBtn').addEventListener('click', resetWeaponDirectly);
+
+    // Attach Backup Actions
+    document.getElementById('exportDataBtn').addEventListener('click', exportDataJSON);
+    document.getElementById('importDataFile').addEventListener('change', importDataJSON);
 
     document.getElementById('resetAllBtn').addEventListener('click', () => {
       if(confirm('Warning: This will clear your entire history and progress. Reset completely?')) { localStorage.removeItem(STORAGE_KEY); location.reload(); }
